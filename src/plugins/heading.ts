@@ -1,11 +1,4 @@
-import {
-  Heading1,
-  Heading2,
-  Heading3,
-  Heading4,
-  Heading5,
-  Heading6,
-} from "lucide-react";
+import { Heading1, Heading2, Heading3 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { MarkdownPlugin } from "./types";
 import { toggleHeading, headingActive } from "./helpers";
@@ -14,17 +7,14 @@ const ICONS: Record<number, LucideIcon> = {
   1: Heading1,
   2: Heading2,
   3: Heading3,
-  4: Heading4,
-  5: Heading5,
-  6: Heading6,
 };
 
 /**
- * 팩토리 — 1파일에서 H1–H6 플러그인 인스턴스 6개 생성(헌법 원칙 I 문서화된 예외).
- * 각 인스턴스는 레지스트리에 개별 등록된다.
+ * 팩토리 — H1–H3 플러그인 인스턴스 생성(헌법 원칙 I 문서화된 예외).
+ * H4–H6은 글자 크기 구분이 약해 툴바에서 제외(2026-06 스펙 변경). 각 인스턴스는 레지스트리에 개별 등록.
  */
 export function createHeadingPlugins(): MarkdownPlugin[] {
-  return [1, 2, 3, 4, 5, 6].map((level) => ({
+  return [1, 2, 3].map((level) => ({
     id: `heading-${level}`,
     label: `제목 H${level}`,
     icon: ICONS[level],

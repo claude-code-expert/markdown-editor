@@ -8,6 +8,19 @@
 
 **Input**: User description: "m2 를 진행해줘"
 
+## Amendment — 툴바 매핑 변경 (2026-06-27)
+
+`docs/markdown-editor-spec.md §0` 변경 반영. 툴바 버튼을 **§0 번호순 16종 / 3그룹**으로 재정렬.
+
+**제거된 버튼**(플러그인 삭제, 렌더 파이프라인은 무변경 — 직접 입력 시 동작):
+- 제목 H4–H6, 참조 링크, 작업 목록, **굵은 기울임, 자동 링크, 강제 줄바꿈**.
+- 삭제 파일: `referenceLink.ts`·`taskList.ts`·`boldItalic.ts`·`autolink.ts`·`hardBreak.ts` + 관련 테스트.
+
+**툴바 구성**(16종): ① 코어 블록(제목 H1–H3·Setext·인용·글머리·번호·코드블록·구분선) ② 코어 인라인
+(굵게·기울임·코드·링크·이미지) ③ GFM(취소선·표). 그룹 경계 구분선 + 버튼 테두리·클릭효과(`globals.css .md-tool-btn`).
+
+플러그인 24 → **16종**.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - 모든 마크다운 태그를 툴바로 삽입 (Priority: P1)

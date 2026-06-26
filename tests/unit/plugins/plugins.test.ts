@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { PLUGINS } from "@/plugins";
 import { bold } from "@/plugins/bold";
-import { taskList } from "@/plugins/taskList";
+import { bulletList } from "@/plugins/bulletList";
 import { link } from "@/plugins/link";
 import { image } from "@/plugins/image";
 import { createHeadingPlugins } from "@/plugins/heading";
@@ -18,9 +18,9 @@ describe("플러그인 apply/isActive (C1·C5·C6)", () => {
     expect(h2.apply({ doc: "t", selectionStart: 0, selectionEnd: 0 }).doc).toBe("## t");
   });
 
-  it("taskList 줄 접두 (GFM)", () => {
-    expect(taskList.apply({ doc: "todo", selectionStart: 0, selectionEnd: 0 }).doc).toBe(
-      "- [ ] todo",
+  it("bulletList 줄 접두", () => {
+    expect(bulletList.apply({ doc: "todo", selectionStart: 0, selectionEnd: 0 }).doc).toBe(
+      "- todo",
     );
   });
 
@@ -36,8 +36,8 @@ describe("플러그인 apply/isActive (C1·C5·C6)", () => {
 });
 
 describe("레지스트리 무결성 (C6)", () => {
-  it("플러그인 24종 등록 (M1 19 + M2 신규 5: setext·boldItalic·refLink·autolink·hardBreak)", () => {
-    expect(PLUGINS).toHaveLength(24);
+  it("플러그인 16종 등록 (§0 번호순, 굵은기울임·자동링크·줄바꿈 추가 제외)", () => {
+    expect(PLUGINS).toHaveLength(16);
   });
 
   it("모든 플러그인이 한글 label·icon·apply를 가진다", () => {

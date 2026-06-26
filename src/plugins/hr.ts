@@ -6,6 +6,6 @@ export const hr: MarkdownPlugin = {
   id: "hr",
   label: "구분선",
   icon: Minus,
-  group: "special",
+  group: "block",
   apply: (s) => insertBlock(s, "---"),
 };

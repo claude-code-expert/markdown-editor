@@ -3,19 +3,20 @@
 import { useState } from "react";
 import { Save } from "lucide-react";
 import { useEditorStore } from "@/lib/store/useEditorStore";
+import { useWorkspaceStore } from "@/lib/store/useWorkspaceStore";
 import { countDoc } from "@/lib/util/count";
 
-/** 하단 상태바 — 문자수·줄수(FR-016) + 저장/취소(FR-011·012·014) + 토스트. dc.html 매칭. */
+/** 하단 상태바 — 문자수·줄수(FR-016) + 저장/취소 + 토스트. 저장은 활성 문서에 기록(M3). */
 export function StatusBar() {
   const doc = useEditorStore((s) => s.doc);
   const dirty = useEditorStore((s) => s.dirty);
-  const save = useEditorStore((s) => s.save);
   const cancel = useEditorStore((s) => s.cancel);
+  const saveActive = useWorkspaceStore((s) => s.saveActive);
   const [toast, setToast] = useState<string | null>(null);
   const { chars, lines } = countDoc(doc);
 
-  function handleSave() {
-    const res = save();
+  async function handleSave() {
+    const res = await saveActive();
     setToast(res.ok ? "저장되었습니다" : `저장 실패: ${res.error ?? ""}`);
     window.setTimeout(() => setToast(null), 1900);
   }

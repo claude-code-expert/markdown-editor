@@ -1,12 +1,18 @@
 "use client";
 
 import { FolderPlus } from "lucide-react";
+import { useWorkspaceStore } from "@/lib/store/useWorkspaceStore";
+import { FolderTree } from "./FolderTree";
 
-/**
- * 사이드바 (M2 — 레이아웃 셸). 와이어프레임 구조: [+] 폴더 생성 자리 + 폴더/문서 트리 영역.
- * 데이터·CRUD·다중 문서는 M3(저장소). M2는 빈 상태 안내를 보여준다.
- */
+/** 사이드바 — [+] 폴더 생성 + 폴더>문서 트리(M3). 데이터는 워크스페이스 스토어. */
 export function Sidebar() {
+  const createFolder = useWorkspaceStore((s) => s.createFolder);
+
+  function onNewFolder() {
+    const name = window.prompt("폴더 이름", "새 폴더");
+    if (name) createFolder(name);
+  }
+
   return (
     <aside
       aria-label="문서 탐색기"
@@ -30,21 +36,17 @@ export function Sidebar() {
         <button
           type="button"
           aria-label="폴더 생성"
-          title="폴더 생성 (M3에서 제공)"
-          disabled
-          className="inline-flex items-center justify-center rounded-md disabled:opacity-40"
+          title="폴더 생성"
+          onClick={onNewFolder}
+          className="inline-flex items-center justify-center rounded-md hover:bg-[color:var(--border-soft)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
           style={{ width: 26, height: 26, color: "var(--fg-muted)" }}
         >
           <FolderPlus size={15} aria-hidden />
         </button>
       </div>
 
-      <div className="flex-1 overflow-auto px-3 py-3">
-        <p style={{ fontSize: 12.5, lineHeight: 1.6, color: "var(--fg-faint)" }}>
-          폴더·문서 트리는 다음 단계에서 제공됩니다.
-          <br />
-          <span style={{ fontSize: 11.5 }}>(M3: 폴더 생성 · 문서 관리 · 저장소)</span>
-        </p>
+      <div className="flex-1 overflow-auto px-2 py-2">
+        <FolderTree />
       </div>
     </aside>
   );

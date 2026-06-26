@@ -73,3 +73,23 @@ npm run dev       # 개발 서버
 리사이즈 핸들 스타일(1px 중성→hover 액센트, anti-slop).
 
 **범위 밖(M3)**: 폴더/문서 데이터·CRUD·다중문서·IndexedDB. **수동 미검증**: T009 `npm run dev`로 드래그 리사이즈 시각 확인.
+
+---
+
+## M3 — 저장소(폴더/문서 영속 + 다중 문서)  ※ requirement.md §12 M3
+
+**상태**: GREEN — 115/115 통과(기존 91 + M3 24), 빌드 성공. `idb` 8 + `fake-indexeddb`(dev) 추가.
+
+| 영역 | 테스트 | 상태 |
+|------|--------|------|
+| 폴더 리포지토리 | `tests/unit/storage/folders.test.ts`(D1·D4 cascade) | ✅ |
+| 문서 리포지토리 | `tests/unit/storage/documents.test.ts`(D2·D3·D5·D6) | ✅ |
+| 마이그레이션 | `tests/unit/storage/migrate.test.ts`(M1–M4 + **C1 부활방지**) | ✅ |
+| 워크스페이스 협응 | `tests/unit/store/workspace.test.ts`(W1·W2·W4 무혼합·W5·W6) | ✅ |
+| 사이드바·트리 | `tests/unit/components/{sidebar,folder-tree}.test.tsx` | ✅ |
+
+**신규**: `lib/storage/{db,folders,documents,migrate}.ts`(IndexedDB), `useWorkspaceStore`, 에디터 버퍼 전환(`useEditorStore` init/save 제거→setBuffer/markSaved), `FolderTree.tsx`, Sidebar 재작성(트리), EditorScreen `loadAll`, StatusBar `saveActive`.
+
+**analyze 수정 반영**: C1(멱등=meta 플래그, 문서수 아님) · U1(신규설치 빈 문서 1건 시드) · G1(저장 실패 `{ok:false}` 토스트).
+
+**수동 미검증**: T027 `npm run dev`로 폴더 생성·문서 전환·삭제 시각 확인.

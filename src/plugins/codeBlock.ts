@@ -7,7 +7,7 @@ export const codeBlock: MarkdownPlugin = {
   id: "code-block",
   label: "코드 블록",
   icon: SquareCode,
-  group: "special",
+  group: "block",
   dialog: {
     fields: [
       { key: "language", label: "언어", placeholder: "js, python …", optional: true },

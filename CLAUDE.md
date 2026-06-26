@@ -106,7 +106,7 @@ UI·HTML·SVG·슬라이드 생성 시 **`.claude/rules/anti-ai-slop.md` 강제*
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-`specs/002-full-markdown-toolbar/plan.md` (M2 전체 마크다운 툴바 — 진행 중).
-M1(완료): `specs/001-single-screen-editor/plan.md`.
-M2 산출물: `research.md`, `data-model.md`, `quickstart.md`, `contracts/`(plugin-contract-v2·table-ops·reference-link).
+`specs/004-storage-folders/plan.md` (M3 저장소·폴더/문서 — 진행 중).
+완료 SDD: `specs/001-single-screen-editor`(에디터) · `specs/002-full-markdown-toolbar`(툴바) · `specs/003-sidebar-layout`(사이드바 셸).
+M3 산출물: `research.md`, `data-model.md`, `quickstart.md`, `contracts/`(storage-db·workspace-model·sidebar-tree).
 <!-- SPECKIT END -->

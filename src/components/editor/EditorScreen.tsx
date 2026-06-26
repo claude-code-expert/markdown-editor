@@ -12,19 +12,20 @@ import { Group, Panel, Separator } from "react-resizable-panels";
 import type { EditorController } from "./controller";
 import type { MarkdownPlugin } from "@/plugins";
 import { useEditorStore } from "@/lib/store/useEditorStore";
+import { useWorkspaceStore } from "@/lib/store/useWorkspaceStore";
 
 /** 단일 화면 조립: 헤더 + 툴바 + 에디터:프리뷰 50:50 + 상태바. dc.html 시각 구조 매칭. */
 export function EditorScreen() {
   const controllerRef = useRef<EditorController>(null);
   const [dialogPlugin, setDialogPlugin] = useState<MarkdownPlugin | null>(null);
-  const init = useEditorStore((s) => s.init);
+  const loadAll = useWorkspaceStore((s) => s.loadAll);
   const dirty = useEditorStore((s) => s.dirty);
   const inTable = useEditorStore((s) => s.inTable);
 
-  // 초기 로드: 저장본 우선, 없으면 시드(FR-013·FR-018)
+  // 초기 로드: 마이그레이션 + 폴더/문서 로드 + 첫 문서 활성 (M3)
   useEffect(() => {
-    init();
-  }, [init]);
+    loadAll();
+  }, [loadAll]);
 
   // 미저장 이탈 경고(FR-015)
   useEffect(() => {

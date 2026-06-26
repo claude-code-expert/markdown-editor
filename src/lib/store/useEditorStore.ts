@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { loadDoc, saveDoc } from "@/lib/storage/local";
 
 /** 활성 id 배열 동등성 — 불필요한 리렌더 방지 */
 function sameIds(a: string[], b: string[]): boolean {
@@ -16,16 +15,18 @@ interface EditorStore {
   setDoc: (next: string) => void;
   setActiveIds: (ids: string[]) => void;
   setInTable: (v: boolean) => void;
-  init: () => void;
-  save: () => { ok: boolean; error?: string };
+  /** 활성 문서 로드 — 버퍼 주입(savedDoc=doc=content, dirty=false) (M3 W1) */
+  setBuffer: (content: string) => void;
+  /** 저장 성공 후 — savedDoc=doc, dirty=false (워크스페이스 saveActive가 호출) */
+  markSaved: () => void;
   cancel: () => void;
 }
 
 /**
- * 전역 에디터 상태. dirty = doc !== savedDoc.
- * 저장/취소/이탈경고 3흐름이 이 상태쌍에서 파생(data-model.md).
+ * 에디터 편집 버퍼 — "현재 활성 문서"만 안다(단일 책임). 폴더/문서 목록·영속은 워크스페이스 스토어.
+ * dirty = doc !== savedDoc.
  */
-export const useEditorStore = create<EditorStore>((set, get) => ({
+export const useEditorStore = create<EditorStore>((set) => ({
   doc: "",
   savedDoc: "",
   dirty: false,
@@ -36,14 +37,8 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   setActiveIds: (ids) =>
     set((s) => (sameIds(s.activeIds, ids) ? s : { activeIds: ids })),
   setInTable: (v) => set((s) => (s.inTable === v ? s : { inTable: v })),
-  init: () => {
-    const { content } = loadDoc();
-    set({ doc: content, savedDoc: content, dirty: false, initialized: true });
-  },
-  save: () => {
-    const res = saveDoc(get().doc);
-    if (res.ok) set((s) => ({ savedDoc: s.doc, dirty: false }));
-    return res.ok ? { ok: true } : { ok: false, error: res.error };
-  },
+  setBuffer: (content) =>
+    set({ doc: content, savedDoc: content, dirty: false, initialized: true }),
+  markSaved: () => set((s) => ({ savedDoc: s.doc, dirty: false })),
   cancel: () => set((s) => ({ doc: s.savedDoc, dirty: false })),
 }));

@@ -9,14 +9,22 @@ import { renderMarkdown } from "@/lib/markdown/pipeline";
  * 기대값 출처: docs/markdown-editor-spec.md §0.
  */
 
-// 명세 §0 코어+GFM 전 태그 (툴바 커버리지 기준)
+// 명세 §0 툴바 매핑 (2026-06-27: 16종, §0 번호순 / 코어블록·코어인라인·GFM 3그룹)
 const REQUIRED_IDS = [
-  "heading-1", "heading-2", "heading-3", "heading-4", "heading-5", "heading-6",
-  "setext-heading",
-  "bold", "bold-italic", "italic", "strikethrough", "inline-code",
-  "link", "reference-link", "autolink", "image",
-  "blockquote", "bullet-list", "ordered-list", "task-list",
-  "code-block", "table", "hr", "hard-break",
+  // 코어 블록
+  "heading-1", "heading-2", "heading-3", "setext-heading",
+  "blockquote", "bullet-list", "ordered-list", "code-block", "hr",
+  // 코어 인라인
+  "bold", "italic", "inline-code", "link", "image",
+  // GFM
+  "strikethrough", "table",
+];
+
+// 툴바에서 제외된 태그(렌더는 동작하나 버튼 없음)
+const EXCLUDED_IDS = [
+  "heading-4", "heading-5", "heading-6",
+  "reference-link", "task-list",
+  "bold-italic", "autolink", "hard-break",
 ];
 
 // 다이얼로그 플러그인에 적절한 입력 주입
@@ -37,9 +45,14 @@ const sel = (doc: string, a: number, b: number): EditorState => ({
 });
 
 describe("툴바 무결성", () => {
-  it("명세 §0 전 태그가 레지스트리에 등록됨 (누락 0, SC-001)", () => {
+  it("명세 §0 툴바 태그가 레지스트리에 등록됨 (누락 0, SC-001)", () => {
     const ids = new Set(PLUGINS.map((p) => p.id));
     expect(REQUIRED_IDS.filter((id) => !ids.has(id))).toEqual([]);
+  });
+
+  it("제외 태그(H4–6·참조링크·작업목록)는 툴바에 없음", () => {
+    const ids = new Set(PLUGINS.map((p) => p.id));
+    expect(EXCLUDED_IDS.filter((id) => ids.has(id))).toEqual([]);
   });
 
   it("플러그인 id가 유일하다", () => {
