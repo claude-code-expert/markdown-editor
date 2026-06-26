@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "es2022",
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "checkJs": false,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "maxNodeModuleJsDepth": 0,
+    "types": ["node"]
+  },
+  "include": ["src", "test", "public", "server.mjs"],
+  "exclude": ["node_modules", "data", "design", "docs"]
+}

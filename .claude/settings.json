@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/codevillain/Claude-Code-Expert/markdown-editor/extract-my-prompts.sh --append --cwd /Users/codevillain/Claude-Code-Expert/markdown-editor -o /Users/codevillain/Claude-Code-Expert/markdown-editor/prompt.md >/dev/null 2>&1 || true",
+            "statusMessage": "prompt.md 기록 갱신 중…",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
