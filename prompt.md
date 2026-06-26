@@ -151,3 +151,221 @@ markdown 기능을 수행하는 에디터 영역 (10여개 기능  아이콘 )
 @docs/requirement.md 의 시스템 아키텍처 부분 현재 uml인데 텍스트 표기로 변경해줘
 
 
+### 3. 2026-06-26
+
+B
+
+### 4. 2026-06-26
+
+/speckit-analyze
+
+### 5. 2026-06-26
+
+## Error Type
+Console Error
+
+## Error Message
+A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html
+                          lang="ko"
+-                         trancy-version="7.8.7"
+                        >
+                  ...
+
+
+
+    at html (<anonymous>:null:null)
+    at RootLayout (src/app/layout.tsx:15:5)
+
+## Code Frame
+  13 | }) {
+  14 |   return (
+> 15 |     <html lang="ko">
+     |     ^
+  16 |       <body>{children}</body>
+  17 |     </html>
+  18 |   );
+
+Next.js version: 16.2.9 (Turbopack)
+
+### 6. 2026-06-26
+
+현재까지 진행된 스펙에 다음의 케이스가 누락되었는데, 어떤 단계에서 구현 계획이 잡혀있는지 확인하고 없다면 m2에 추가되어서 개발 되어야 해 
+
+- @docs/markdown-editor-spec.md 의 모든 태그 기능이 에디터 영역에 녹아있지 않음 
+- @docs/design/ 에 근거한 preview 태그 및 스타일이 적용되어 있지 않음 
+- lucide 아이콘으로 구성되어야 할 에디터 상단의 아이콘들이 누락되어 있음 
+
+이 내용 확인하고 계발 계획을 다시 점검해서 다음단계에 무엇부터 시작해야 하는지 알려줘
+
+### 7. 2026-06-26
+
+/speckit-analyze
+
+### 8. 2026-06-26
+
+m2단계에서 다음의 문제가 발생했어 
+- 사이드바가 출력되지 않음 (사이드바와 리사이즈 기능이 개발이 안되어있음)
+- 에디터 툴바에 B 아이콘이 두개가 노출되고 있음
+
+마일스톤과 세부 구현 task를 다시 확인하고 @docs/markdown-editor-spec.md 의 기능이 에디터 툴바에 제대로 구현되어 있는지 검증해야해 
+
+- 각 툴파의 플러그인은 개별 동작해야 하며, 전체 툴바의 기능은 하나의 파일에서 엣지케이스까지 (중첩, 누락, 태그 미동작, 한글 IME 처리 미숙 등)  한번에 통합해서 테스트가 되어야 함
+
+### 9. 2026-06-26
+
+사이드 바는 없어. 사이드바는 폴더와 md를 트리구조로 보여주는 형태의 메뉴바인데 왜 컨텐츠 (마크다운 에디터와 프리뷰) 밖에 안보이지? 문제가 뭐야?
+
+### 15. 2026-06-26
+
+다음의 내용을 참고해 requirement.md에 나와있는 내용이야  
+| M2 | 레이아웃 | 사이드바+컨텐츠 2분할, 리사이즈(FR-1, FR-2.4) | 이것과 
+```text
+┌──────────────────────────────────────────────────────────────────┐
+│  상단 바: [앱명]            [폴더 경로 선택 ▼]   [저장 💾]          │
+├───────────────┬──────────────────────────────────────────────────┤
+│  사이드바     │  툴바: H1 H2 H3 H4 H5 H6 | B I S | <> ▢ | 🔗 🖼     │
+│  (리사이즈)   │        " • 1. ☑ | ▦ — ↵                            │
+│               ├───────────────────────────┬──────────────────────┤
+│  [+] 폴더생성 │                           │                      │
+│  📁 폴더A     │   마크다운 에디터          │   프리뷰             │
+│   └ 📄 doc1   │   (CodeMirror 6)          │   (실시간 렌더)      │
+│   └ 📄 doc2   │                           │                      │
+│  📁 폴더B     │        50%                │        50%           │
+│   └ 📄 doc3   │                           │                      │
+│               │                           │                      │
+└───────────────┴───────────────────────────┴──────────────────────┘
+``` 여기에 이미 존재하고 있어
+
+### 16. 2026-06-26
+
+어
+
+### 17. 2026-06-26
+
+## 2. 시스템 아키텍처
+
+> 아래 PlantUML을 복사해 이미지로 변환 사용.
+
+```plantuml
+@startuml
+title 마크다운 에디터 웹앱 - 컴포넌트 아키텍처
+
+package "Next.js App (Client)" {
+  [Dashboard Page] as Dash
+  [Editor Page] as Edit
+
+  package "Sidebar" {
+    [FolderTree]
+    [ResizeHandle]
+    [NewFolderButton]
+  }
+
+  package "Content Area (50:50)" {
+    [Toolbar]
+    [MarkdownEditor\n(CodeMirror 6)] as CM
+    [Preview\n(unified render)] as Prev
+  }
+
+  package "Plugin Registry" {
+    [bold.ts]
+    [heading.ts]
+    [link.ts]
+    [...태그별 독립 모듈]
+  }
+
+  package "lib" {
+    [Storage\n(IndexedDB / idb)] as Store
+    [Markdown Pipeline\n(remark+rehype)] as Pipe
+    [Zustand Store] as State
+  }
+}
+
+cloud "Vercel" {
+  [Static Hosting]
+}
+
+Dash --> Store : 폴더/파일 목록 조회
+Dash --> Edit : 파일 클릭 시 이동
+Edit --> CM
+Edit --> Prev
+Toolbar --> [Plugin Registry] : 버튼 = 플러그인
+[Plugin Registry] --> CM : apply() 결과 dispatch
+CM --> Pipe : 입력 텍스트
+Pipe --> Prev : 안전한 HTML
+Edit --> Store : 저장 버튼 -> md 저장
+State --> Sidebar
+State --> Edit
+[Static Hosting] ..> Dash : 배포
+
+@enduml
+``` 이거 왜 text 형태로 안바뀌었지?
+
+### 18. 2026-06-26
+
+@extract-my-prompts.sh 를 통해 현재 세션의 모든 프롬프틀를 @prompt.md 에 자동으로 append 형태로 기록해야 하는데 파일이 업데이트 안되고 있어. 문제가 무엇인지 분석해봐
+
+### 19. 2026-06-26
+
+1
+
+### 20. 2026-06-26
+
+통합 테스트 단독 실행하는 방법
+
+### 21. 2026-06-26
+
+아냐 왜 없다고 하지? | M2 | 레이아웃 | 사이드바+컨텐츠 2분할, 리사이즈(FR-1, FR-2.4) | 이것과 
+```text
+┌──────────────────────────────────────────────────────────────────┐
+│  상단 바: [앱명]            [폴더 경로 선택 ▼]   [저장 💾]          │
+├───────────────┬──────────────────────────────────────────────────┤
+│  사이드바     │  툴바: H1 H2 H3 H4 H5 H6 | B I S | <> ▢ | 🔗 🖼     │
+│  (리사이즈)   │        " • 1. ☑ | ▦ — ↵                            │
+│               ├───────────────────────────┬──────────────────────┤
+│  [+] 폴더생성 │                           │                      │
+│  📁 폴더A     │   마크다운 에디터          │   프리뷰             │
+│   └ 📄 doc1   │   (CodeMirror 6)          │   (실시간 렌더)      │
+│   └ 📄 doc2   │                           │                      │
+│  📁 폴더B     │        50%                │        50%           │
+│   └ 📄 doc3   │                           │                      │
+│               │                           │                      │
+└───────────────┴───────────────────────────┴──────────────────────┘
+``` 여기에 이미 존재하고 있어
+
+### 22. 2026-06-26
+
+지금까지 기록한 프롬프트는 누락되었으니 @prompt.md.state 에 정리해줘 기존내용은 수정하면 안되고 append 해야해
+
+### 23. 2026-06-26
+
+구현시작해
+

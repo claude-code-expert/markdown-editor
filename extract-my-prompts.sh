@@ -192,13 +192,27 @@ def max_existing_index(path):                      # 본문에서 마지막 '###
         pass
     return mx
 
+def existing_body_texts(path):                     # 본문에 이미 기록된 프롬프트 텍스트 집합(정규화)
+    s = set()                                      # '### …' 블록마다 헤더줄 제외한 본문을 strip 해 수집
+    try:
+        with open(path, encoding="utf-8") as fh:
+            content = fh.read()
+    except Exception:
+        return s
+    for part in re.split(r"(?m)^###\s+\d+\.", content)[1:]:   # 번호형 항목 헤더로만 분할
+        body = "\n".join(part.split("\n")[1:]).strip()   # 첫 줄(헤더 잔여) 버리고 본문만
+        if body:
+            s.add(body)
+    return s
+
 if mode == "append":
-    # 분기 우선순위: 파일 존재 여부 먼저, 그 다음 state.
+    # 단일 추적기: 시간 워터마크 대신 '본문에 이미 있는 프롬프트 텍스트'와 대조해
+    # 누락분만 이어붙인다. 워터마크/본문 desync 로 인한 영구 누락이 구조적으로 불가능.
+    # (.state 는 하위호환 캐시로만 기록하며, 포함 판정엔 더 이상 쓰지 않는다.)
     file_exists = os.path.exists(out) and os.path.getsize(out) > 0
-    st = load_state(state_path)
 
     if not file_exists:
-        # (1) FRESH — 파일 없음/빈 파일: 헤더 + 전체 생성
+        # FRESH — 파일 없음/빈 파일: 헤더 + 전체 생성
         with open(out, "w", encoding="utf-8") as w:
             write_header(w)
             for i, (ts, t) in enumerate(uniq, 1):
@@ -206,19 +220,12 @@ if mode == "append":
         write_state(state_path, max_ts, len(uniq), len(uniq))
         print(f"✅ 생성: {out}  (FRESH · 세션 {len(files)}개 · 프롬프트 {len(uniq)}개)")
 
-    elif st is None:
-        # (2) SEED/마이그레이션 + 상태유실 폴백: 본문 미변경, 신규 0건, 상태만 시드
-        last_i = max_existing_index(out)
-        write_state(state_path, max_ts, last_i, len(uniq))
-        print(f"✅ 시드: {out} 본문 보존(미변경) · 기준 번호 #{last_i} · 워터마크 {max_ts[:19]}")
-
     else:
-        # (3) INCREMENTAL — 순수 append: 워터마크 이후만 파일 끝에 이어붙임
-        # 번호 기준은 state가 아니라 '본문 실측 최대 인덱스'다.
-        # 사용자가 prompt.md를 손편집(삭제·재번호)해도 새 항목이 본문 끝번호에서 이어진다.
-        last_ts = st.get("last_ts", "")
+        # INCREMENTAL — 본문 실측 최대번호에서 이어 채번하고, 본문에 '없는' 프롬프트만 추가.
+        # 손편집(삭제·재번호)해도 새 항목이 끝번호에서 이어지며, 과거 누락분도 자동 복구된다.
+        existing = existing_body_texts(out)
         last_i = max_existing_index(out)
-        batch = [(ts, t) for (ts, t) in uniq if ts > last_ts]
+        batch = [(ts, t) for (ts, t) in uniq if t.strip() not in existing]
         if batch:
             buf = "".join(entry_text(last_i + n, ts, t)
                           for n, (ts, t) in enumerate(batch, 1))
@@ -234,10 +241,10 @@ if mode == "append":
                 if need_sep:
                     w.write("\n")
                 w.write(buf)
-            write_state(state_path, batch[-1][0], last_i + len(batch), len(uniq))
+            write_state(state_path, max_ts, last_i + len(batch), len(uniq))
             print(f"✅ 추가: {out}  (+{len(batch)}건 · #{last_i+1}~#{last_i+len(batch)})")
         else:
-            write_state(state_path, last_ts, last_i, len(uniq))
+            write_state(state_path, max_ts, last_i, len(uniq))
             print(f"✅ 변경 없음: {out}  (신규 프롬프트 0건)")
 else:
     # 기존 동작(--all / session / id): 전체 덮어쓰기

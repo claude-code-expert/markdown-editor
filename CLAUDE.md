@@ -2,13 +2,27 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 프로젝트 상태 — 그린필드
+## 프로젝트 상태 — 구현 진행 중
 
-소스코드 없음. 현재는 **스펙·요구사항·디자인 프로토타입만 존재**한다 (`src/`·`package.json` 미생성, 커밋 1개). 구현 착수 시 아래 확정 사항을 계약으로 삼는다.
+`src/`·`package.json` 생성됨. 에디터·프리뷰·툴바·로컬 저장 동작, Vitest 88/88 GREEN, 빌드 통과. SDD 산출물은 `specs/001-single-screen-editor`(에디터 단일화면)·`specs/002-full-markdown-toolbar`(툴바 완성)에 있다.
 
-확정 스택(2026-06 결정): **Next.js 16 (App Router) + React 19 + TypeScript 5 + Tailwind CSS 4 + CodeMirror 6 + unified(remark/rehype) + IndexedDB(`idb`) + Zustand**. 근거·버전은 `docs/requirement.md §0–1`.
+확정 스택(2026-06 결정): **Next.js 16 (App Router) + React 19 + TypeScript 5 + Tailwind CSS 4 + CodeMirror 6 + unified(remark/rehype) + IndexedDB(`idb`) + Zustand**. 근거·버전은 `docs/requirement.md §0–1`. (현재 저장은 `localStorage`, 폴더 도입 시 IndexedDB로 이관.)
 
-범위 전략(단계적): **M1 = 단일 화면 에디터(툴바 + 에디터 50 : 프리뷰 50 + 로컬 저장)**부터. 사이드바·폴더 트리·대시보드·다중 문서는 **후속 마일스톤**. 전체 비전은 `docs/PRD.md`, 기술 설계는 `docs/TRD.md`.
+### 마일스톤 — `docs/requirement.md §12`가 기준(canonical)
+
+7단계. 구현은 **가치우선**으로 진행돼 M4·M5(에디터·플러그인)를 M2·M3(레이아웃·저장소)보다 먼저 완성했다(순서 뒤섞임에 유의).
+
+| 단계 | 범위 | 상태 |
+|------|------|------|
+| M1 | 프로젝트 스캐폴딩 (Next+TS+Tailwind) | ✅ 완료 |
+| M2 | **레이아웃 — 사이드바+컨텐츠 2분할, 리사이즈** | ⬜ 미착수 (← **다음 작업**) |
+| M3 | 저장소 — IndexedDB 스키마, 폴더 CRUD, `+` 버튼 | ⬜ 미착수 |
+| M4 | 에디터/프리뷰 — CodeMirror 6 + unified 50:50, 실시간 렌더 | ✅ 완료(선구현) |
+| M5 | 플러그인 — `MarkdownPlugin` + 전체 태그(24종) | ✅ 완료(선구현) |
+| M6 | 문서 흐름 — 폴더 선택 저장, 파일 리스트, 네비게이션 | ⬜ 미착수 |
+| M7 | 마감 — sanitize·접근성·토스트·dirty check | 🔶 대부분 완료(성능·E2E 수동검증 잔여) |
+
+**SDD 매핑**: `specs/001-single-screen-editor` → M1 + M4 + M7 일부 · `specs/002-full-markdown-toolbar` → M5. (spec 디렉터리명은 가치우선 시기 명명이라 requirement.md 번호와 1:1 아님.) 전체 비전 `docs/PRD.md`, 기술 설계 `docs/TRD.md` — 둘 다 본 표 기준으로 정렬됨.
 
 
 ## 핵심 아키텍처 원칙 (반드시 준수)
@@ -88,3 +102,11 @@ UI·HTML·SVG·슬라이드 생성 시 **`.claude/rules/anti-ai-slop.md` 강제*
 
 - Stop 훅이 매 응답 후 `extract-my-prompts.sh`로 `prompt.md`에 사용자 프롬프트를 증분 기록한다(`.claude/settings.json`). 의도된 동작이니 놀라지 말 것.
 - 문서 내 다이어그램은 PlantUML 대신 **트리+표 텍스트 표기**를 쓴다.
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan:
+`specs/002-full-markdown-toolbar/plan.md` (M2 전체 마크다운 툴바 — 진행 중).
+M1(완료): `specs/001-single-screen-editor/plan.md`.
+M2 산출물: `research.md`, `data-model.md`, `quickstart.md`, `contracts/`(plugin-contract-v2·table-ops·reference-link).
+<!-- SPECKIT END -->
