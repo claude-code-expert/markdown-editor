@@ -7,7 +7,7 @@ export const strikethrough: MarkdownPlugin = {
   id: "strikethrough",
   label: "취소선",
   icon: Strikethrough,
-  group: "special",
+  group: "emphasis",
   shortcut: "Mod-Shift-x",
   apply: (s) => wrapSelection(s, "~~"),
   isActive: (s) => isWrapped(s, "~~"),

@@ -9,6 +9,6 @@ export const table: MarkdownPlugin = {
   id: "table",
   label: "표",
   icon: Table,
-  group: "special",
+  group: "block",
   apply: (s) => insertBlock(s, TEMPLATE),
 };

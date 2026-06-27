@@ -6,7 +6,7 @@ export const image: MarkdownPlugin = {
   id: "image",
   label: "이미지",
   icon: ImageIcon,
-  group: "inline",
+  group: "link",
   dialog: { fields: [{ key: "url", label: "이미지 URL", placeholder: "https://" }] },
   apply: (s, inputs) =>
     buildDialogInsert(

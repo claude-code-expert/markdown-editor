@@ -6,7 +6,7 @@ export const orderedList: MarkdownPlugin = {
   id: "ordered-list",
   label: "번호 목록",
   icon: ListOrdered,
-  group: "block",
+  group: "list",
   apply: (s) => toggleLinePrefix(s, "1. "),
   isActive: (s) => linePrefixActive(s, "1. "),
 };

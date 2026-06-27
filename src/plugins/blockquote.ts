@@ -6,7 +6,7 @@ export const blockquote: MarkdownPlugin = {
   id: "blockquote",
   label: "인용",
   icon: Quote,
-  group: "block",
+  group: "list",
   apply: (s) => toggleLinePrefix(s, "> "),
   isActive: (s) => linePrefixActive(s, "> "),
 };

@@ -197,6 +197,39 @@ body {
   margin-right: 0.5rem;
 }
 
+/* 툴바 버튼 — 테두리 + hover + 클릭(active) 효과. 그라데이션·글로우 없음(anti-slop). */
+.md-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  background: var(--bg);
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
+}
+.md-tool-btn:hover {
+  background: var(--toolbar-hover);
+  color: #1f2a44;
+  border-color: #c2cbdb;
+}
+.md-tool-btn:active {
+  background: #dde3f0;
+  border-color: var(--accent);
+}
+.md-tool-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.md-tool-btn[data-active="true"] {
+  background: #eef1fb;
+  color: var(--accent);
+  border-color: #c5d0f5;
+}
+
 /* 사이드바 리사이즈 핸들 — 1px 중성 보더, hover 시 기능적 액센트(장식 아님) */
 .md-resize-handle {
   width: 1px;
@@ -210,44 +243,4 @@ body {
 }
 .md-resize-handle:focus-visible {
   background: var(--accent);
-}
-
-/* 툴바 버튼 — 테두리 + hover + 클릭(press) 효과 (기능적 상태, anti-slop 준수) */
-.md-tool-btn {
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  background: var(--bg);
-  color: var(--fg-muted);
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
-}
-.md-tool-btn:hover {
-  background: var(--toolbar-hover);
-  color: #1f2a44;
-  border-color: var(--border-strong);
-}
-.md-tool-btn:active {
-  background: var(--border-soft); /* 클릭 press 피드백 */
-}
-.md-tool-btn:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
-.md-tool-btn[data-active="true"] {
-  background: #eef1fb;
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
-/* 그룹 구분선 */
-.md-tool-sep {
-  width: 1px;
-  height: 22px;
-  background: var(--border-strong);
-  margin: 0 7px;
-  flex: none;
 }

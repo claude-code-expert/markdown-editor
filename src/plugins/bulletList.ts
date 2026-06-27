@@ -6,7 +6,7 @@ export const bulletList: MarkdownPlugin = {
   id: "bullet-list",
   label: "글머리 목록",
   icon: List,
-  group: "block",
+  group: "list",
   apply: (s) => toggleLinePrefix(s, "- "),
   isActive: (s) => linePrefixActive(s, "- "),
 };

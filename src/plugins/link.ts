@@ -6,7 +6,7 @@ export const link: MarkdownPlugin = {
   id: "link",
   label: "링크",
   icon: LinkIcon,
-  group: "inline",
+  group: "link",
   dialog: { fields: [{ key: "url", label: "URL", placeholder: "https://" }] },
   apply: (s, inputs) =>
     buildDialogInsert(

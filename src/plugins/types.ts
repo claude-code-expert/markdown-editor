@@ -16,7 +16,8 @@ export interface EditorChange {
   selectionEnd: number;
 }
 
-export type PluginGroup = "inline" | "block" | "special";
+/** 툴바 시각 그룹(그룹 경계마다 구분선). 제목·강조·링크·목록·블록 5분류. */
+export type PluginGroup = "heading" | "emphasis" | "link" | "list" | "block";
 
 /** 다이얼로그 입력 필드 (M2 — 다중필드: 참조링크 id+url, 코드 언어 등) */
 export interface DialogField {

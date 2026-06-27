@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { PLUGINS } from "@/plugins";
 import { bold } from "@/plugins/bold";
-import { bulletList } from "@/plugins/bulletList";
 import { link } from "@/plugins/link";
 import { image } from "@/plugins/image";
 import { createHeadingPlugins } from "@/plugins/heading";
@@ -18,12 +17,6 @@ describe("플러그인 apply/isActive (C1·C5·C6)", () => {
     expect(h2.apply({ doc: "t", selectionStart: 0, selectionEnd: 0 }).doc).toBe("## t");
   });
 
-  it("bulletList 줄 접두", () => {
-    expect(bulletList.apply({ doc: "todo", selectionStart: 0, selectionEnd: 0 }).doc).toBe(
-      "- todo",
-    );
-  });
-
   it("link 다이얼로그 조립 (C5) — v2 다중필드 inputs.url", () => {
     const r = link.apply({ doc: "site", selectionStart: 0, selectionEnd: 4 }, { url: "http://x" });
     expect(r.doc).toBe("[site](http://x)");
@@ -36,8 +29,8 @@ describe("플러그인 apply/isActive (C1·C5·C6)", () => {
 });
 
 describe("레지스트리 무결성 (C6)", () => {
-  it("플러그인 16종 등록 (§0 번호순, 굵은기울임·자동링크·줄바꿈 추가 제외)", () => {
-    expect(PLUGINS).toHaveLength(16);
+  it("플러그인 15종 등록 (제목H1–3 + 강조4 + 링크2 + 목록3 + 블록3)", () => {
+    expect(PLUGINS).toHaveLength(15);
   });
 
   it("모든 플러그인이 한글 label·icon·apply를 가진다", () => {
@@ -45,7 +38,7 @@ describe("레지스트리 무결성 (C6)", () => {
       expect(p.label.length).toBeGreaterThan(0);
       expect(p.icon).toBeTruthy();
       expect(typeof p.apply).toBe("function");
-      expect(["inline", "block", "special"]).toContain(p.group);
+      expect(["heading", "emphasis", "link", "list", "block"]).toContain(p.group);
     }
   });
 

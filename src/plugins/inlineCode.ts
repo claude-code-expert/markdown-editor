@@ -6,7 +6,7 @@ export const inlineCode: MarkdownPlugin = {
   id: "inline-code",
   label: "인라인 코드",
   icon: Code,
-  group: "inline",
+  group: "emphasis",
   shortcut: "Mod-e",
   apply: (s) => wrapSelection(s, "`"),
   isActive: (s) => isWrapped(s, "`"),

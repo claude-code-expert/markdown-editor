@@ -6,7 +6,7 @@ export const italic: MarkdownPlugin = {
   id: "italic",
   label: "기울임",
   icon: Italic,
-  group: "inline",
+  group: "emphasis",
   shortcut: "Mod-i",
   apply: (s) => wrapSelection(s, "*"),
   isActive: (s) => isWrapped(s, "*"),

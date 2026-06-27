@@ -6,7 +6,7 @@ export const bold: MarkdownPlugin = {
   id: "bold",
   label: "굵게",
   icon: Bold,
-  group: "inline",
+  group: "emphasis",
   shortcut: "Mod-b",
   apply: (s) => wrapSelection(s, "**"),
   isActive: (s) => isWrapped(s, "**"),
