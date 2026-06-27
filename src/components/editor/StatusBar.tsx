@@ -5,6 +5,8 @@ import { Save } from "lucide-react";
 import { useEditorStore } from "@/lib/store/useEditorStore";
 import { useWorkspaceStore } from "@/lib/store/useWorkspaceStore";
 import { countDoc } from "@/lib/util/count";
+import { Button } from "@/components/ui/Button";
+import { Toast } from "@/components/ui/Toast";
 
 /** 하단 상태바 — 문자수·줄수(FR-016) + 저장/취소 + 토스트. 저장은 활성 문서에 기록(M3). */
 export function StatusBar() {
@@ -12,18 +14,54 @@ export function StatusBar() {
   const dirty = useEditorStore((s) => s.dirty);
   const cancel = useEditorStore((s) => s.cancel);
   const saveActive = useWorkspaceStore((s) => s.saveActive);
-  const [toast, setToast] = useState<string | null>(null);
+  const documents = useWorkspaceStore((s) => s.documents);
+  const folders = useWorkspaceStore((s) => s.folders);
+  const activeDocId = useWorkspaceStore((s) => s.activeDocId);
+  const activeDoc = documents.find((d) => d.id === activeDocId);
+  const title = activeDoc?.title ?? "제목 없음";
+  const folderName =
+    folders.find((f) => f.id === activeDoc?.folderId)?.name ?? "기타";
+  const [toast, setToast] = useState<{
+    msg: string;
+    kind: "ok" | "error" | "info";
+  } | null>(null);
   const { chars, lines } = countDoc(doc);
 
+  /** resource/md/<제목>.md 파일로 기록(서버 라우트). 실패해도 IndexedDB 저장은 유지. */
+  async function saveToFile(): Promise<{ ok: boolean; error?: string }> {
+    try {
+      const r = await fetch("/api/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, content: doc, folder: folderName }),
+      });
+      const data = await r.json();
+      return { ok: Boolean(data?.ok), error: data?.error };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "네트워크 오류" };
+    }
+  }
+
   async function handleSave() {
+    // 1) IndexedDB(앱 상태) → 2) 성공 시 resource/md 파일 기록
     const res = await saveActive();
-    setToast(res.ok ? "저장되었습니다" : `저장 실패: ${res.error ?? ""}`);
+    if (!res.ok) {
+      setToast({ msg: `저장 실패: ${res.error ?? ""}`, kind: "error" });
+      window.setTimeout(() => setToast(null), 1900);
+      return;
+    }
+    const file = await saveToFile();
+    setToast(
+      file.ok
+        ? { msg: `저장되었습니다 (resource/md/${folderName})`, kind: "ok" }
+        : { msg: `파일 저장 실패: ${file.error ?? ""}`, kind: "error" },
+    );
     window.setTimeout(() => setToast(null), 1900);
   }
 
   function handleCancel() {
     cancel();
-    setToast("마지막 저장 상태로 되돌렸습니다");
+    setToast({ msg: "마지막 저장 상태로 되돌렸습니다", kind: "info" });
     window.setTimeout(() => setToast(null), 1900);
   }
 
@@ -43,59 +81,17 @@ export function StatusBar() {
         </div>
 
         <div className="flex items-center gap-2.5">
-          <button
-            type="button"
-            onClick={handleCancel}
-            disabled={!dirty}
-            className="rounded-lg font-semibold disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
-            style={{
-              height: 38,
-              padding: "0 20px",
-              fontSize: 14,
-              border: "1px solid var(--border-strong)",
-              background: "#fff",
-              color: "#5a6577",
-            }}
-          >
+          <Button variant="secondary" onClick={handleCancel} disabled={!dirty}>
             취소
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            className="inline-flex items-center gap-1.5 rounded-lg font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-[color:var(--accent)]"
-            style={{
-              height: 38,
-              padding: "0 24px",
-              fontSize: 14,
-              border: "none",
-              background: "var(--accent)",
-              color: "var(--accent-fg)",
-            }}
-          >
-            <Save size={16} strokeWidth={2.1} aria-hidden />
+          </Button>
+          <Button variant="primary" onClick={handleSave}>
+            <Save size={15} strokeWidth={2.1} aria-hidden />
             저장
-          </button>
+          </Button>
         </div>
       </div>
 
-      {/* 토스트 — 디자인의 컬러 그림자 대신 중성 그림자(헌법 V) */}
-      {toast && (
-        <div
-          aria-live="polite"
-          className="fixed left-1/2 flex items-center gap-2 rounded-lg font-semibold"
-          style={{
-            bottom: 30,
-            transform: "translateX(-50%)",
-            background: "#1c2434",
-            color: "#fff",
-            padding: "11px 20px",
-            fontSize: 13.5,
-            boxShadow: "0 1px 3px rgba(0,0,0,0.18)",
-          }}
-        >
-          {toast}
-        </div>
-      )}
+      {toast && <Toast msg={toast.msg} kind={toast.kind} />}
     </>
   );
 }

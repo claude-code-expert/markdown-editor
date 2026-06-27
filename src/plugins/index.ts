@@ -9,6 +9,7 @@ import { image } from "./image";
 import { blockquote } from "./blockquote";
 import { bulletList } from "./bulletList";
 import { orderedList } from "./orderedList";
+import { taskList } from "./taskList";
 import { codeBlock } from "./codeBlock";
 import { table } from "./table";
 import { hr } from "./hr";
@@ -16,7 +17,8 @@ import { hr } from "./hr";
 /**
  * 레지스트리 — 배열 순서 = 툴바 표시 순서. 그룹(heading·emphasis·link·list·block) 경계마다 구분선.
  * 새 마크다운 태그 추가 = 플러그인 파일 1개 작성 + 여기 1줄 추가. 코어 무수정(헌법 원칙 I).
- * 2026-06-27 변경: 제목 H1–H3 / 링크 단일화 / 작업목록·Setext·굵은기울임·자동링크·줄바꿈 제외.
+ * 2026-06-27 변경: 제목 H1–H3 / 링크 단일화 / Setext·굵은기울임·자동링크·줄바꿈 제외.
+ * 2026-06-27 재추가: 작업목록(체크리스트, GFM) — 목록 그룹.
  */
 export const PLUGINS: MarkdownPlugin[] = [
   // 제목
@@ -33,6 +35,7 @@ export const PLUGINS: MarkdownPlugin[] = [
   blockquote,
   bulletList,
   orderedList,
+  taskList,
   // 블록
   codeBlock,
   table,

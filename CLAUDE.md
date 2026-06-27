@@ -106,7 +106,8 @@ UI·HTML·SVG·슬라이드 생성 시 **`.claude/rules/anti-ai-slop.md` 강제*
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-`specs/004-storage-folders/plan.md` (M3 저장소·폴더/문서 — 진행 중).
-완료 SDD: `specs/001-single-screen-editor`(에디터) · `specs/002-full-markdown-toolbar`(툴바) · `specs/003-sidebar-layout`(사이드바 셸).
-M3 산출물: `research.md`, `data-model.md`, `quickstart.md`, `contracts/`(storage-db·workspace-model·sidebar-tree).
+`specs/007-release-hardening/plan.md` (M7 마감 — 성능·접근성·안전종료·배포 검증, 진행 중).
+완료 SDD: 001(에디터)·002(툴바)·003(사이드바)·004(저장소)·005(에디터보강 M4)·006(문서흐름·라우팅 M6).
+M7 산출물: `research.md`(키보드리사이즈·대비·성능·클라네비 가드), `data-model.md`(신규모델 없음), `quickstart.md`(통합 수동·자동 검증), `contracts/`(accessibility·performance·save-feedback).
+M7 감사 발견 결함: `--danger` 토큰 미정의(FolderSelect 사용)·`--fg-faint` 대비 2.6:1(AA 미달)·토스트 성공/실패 미구분·대시보드 링크 dirty 가드 없음.
 <!-- SPECKIT END -->

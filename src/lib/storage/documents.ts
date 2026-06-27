@@ -56,6 +56,21 @@ export async function renameDocument(id: string, title: string): Promise<void> {
   await db.put("documents", doc);
 }
 
+/** 문서를 다른 폴더로 이동(+제목 갱신) (M6 moveDocument) */
+export async function setFolder(
+  id: string,
+  folderId: string,
+  title: string,
+): Promise<void> {
+  const db = await getDB();
+  const doc = await db.get("documents", id);
+  if (!doc) return;
+  doc.folderId = folderId;
+  doc.title = title;
+  doc.updatedAt = Date.now();
+  await db.put("documents", doc);
+}
+
 export async function deleteDocument(id: string): Promise<void> {
   await (await getDB()).delete("documents", id);
 }

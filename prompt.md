@@ -267,114 +267,6 @@ m2단계에서 다음의 문제가 발생했어
 
 ### 16. 2026-06-26
 
-어
-
-### 17. 2026-06-26
-
-## 2. 시스템 아키텍처
-
-> 아래 PlantUML을 복사해 이미지로 변환 사용.
-
-```plantuml
-@startuml
-title 마크다운 에디터 웹앱 - 컴포넌트 아키텍처
-
-package "Next.js App (Client)" {
-  [Dashboard Page] as Dash
-  [Editor Page] as Edit
-
-  package "Sidebar" {
-    [FolderTree]
-    [ResizeHandle]
-    [NewFolderButton]
-  }
-
-  package "Content Area (50:50)" {
-    [Toolbar]
-    [MarkdownEditor\n(CodeMirror 6)] as CM
-    [Preview\n(unified render)] as Prev
-  }
-
-  package "Plugin Registry" {
-    [bold.ts]
-    [heading.ts]
-    [link.ts]
-    [...태그별 독립 모듈]
-  }
-
-  package "lib" {
-    [Storage\n(IndexedDB / idb)] as Store
-    [Markdown Pipeline\n(remark+rehype)] as Pipe
-    [Zustand Store] as State
-  }
-}
-
-cloud "Vercel" {
-  [Static Hosting]
-}
-
-Dash --> Store : 폴더/파일 목록 조회
-Dash --> Edit : 파일 클릭 시 이동
-Edit --> CM
-Edit --> Prev
-Toolbar --> [Plugin Registry] : 버튼 = 플러그인
-[Plugin Registry] --> CM : apply() 결과 dispatch
-CM --> Pipe : 입력 텍스트
-Pipe --> Prev : 안전한 HTML
-Edit --> Store : 저장 버튼 -> md 저장
-State --> Sidebar
-State --> Edit
-[Static Hosting] ..> Dash : 배포
-
-@enduml
-``` 이거 왜 text 형태로 안바뀌었지?
-
-### 18. 2026-06-26
-
-@extract-my-prompts.sh 를 통해 현재 세션의 모든 프롬프틀를 @prompt.md 에 자동으로 append 형태로 기록해야 하는데 파일이 업데이트 안되고 있어. 문제가 무엇인지 분석해봐
-
-### 19. 2026-06-26
-
-1
-
-### 20. 2026-06-26
-
-통합 테스트 단독 실행하는 방법
-
-### 21. 2026-06-26
-
-아냐 왜 없다고 하지? | M2 | 레이아웃 | 사이드바+컨텐츠 2분할, 리사이즈(FR-1, FR-2.4) | 이것과 
-```text
-┌──────────────────────────────────────────────────────────────────┐
-│  상단 바: [앱명]            [폴더 경로 선택 ▼]   [저장 💾]          │
-├───────────────┬──────────────────────────────────────────────────┤
-│  사이드바     │  툴바: H1 H2 H3 H4 H5 H6 | B I S | <> ▢ | 🔗 🖼     │
-│  (리사이즈)   │        " • 1. ☑ | ▦ — ↵                            │
-│               ├───────────────────────────┬──────────────────────┤
-│  [+] 폴더생성 │                           │                      │
-│  📁 폴더A     │   마크다운 에디터          │   프리뷰             │
-│   └ 📄 doc1   │   (CodeMirror 6)          │   (실시간 렌더)      │
-│   └ 📄 doc2   │                           │                      │
-│  📁 폴더B     │        50%                │        50%           │
-│   └ 📄 doc3   │                           │                      │
-│               │                           │                      │
-└───────────────┴───────────────────────────┴──────────────────────┘
-``` 여기에 이미 존재하고 있어
-
-### 22. 2026-06-26
-
-지금까지 기록한 프롬프트는 누락되었으니 @prompt.md.state 에 정리해줘 기존내용은 수정하면 안되고 append 해야해
-
-### 23. 2026-06-26
-
-구현시작해
-
-### 24. 2026-06-26
-
-고
-
-### 25. 2026-06-26
-
 m3 단계에서 에디터 툴바의 기능을 다시 정리했어 @docs/markdown-editor-spec.md 의 0. 결론 — 툴바 기능 매핑 (한눈에 보기) 스펙이 변경되었으니 다시 다음의  기능 반영하고 관련 문서와 테스트 코드  업데이트 해줘 
 - heading은 레벨 3까지만 (4,5,6은 글자 크기상 크게 구분이 안되므로 제외)
 - 링크는 하나만 지원 
@@ -384,17 +276,71 @@ m3 단계에서 에디터 툴바의 기능을 다시 정리했어 @docs/markdown
 
 ### 26. 2026-06-26
 
-툴바에 굵은 기울임, 자동링크, 줄바꿈 필요없고, 그룹단위로 순서대로 1번부터 16번까지 @docs/markdown-editor-spec.md 을 다시 참고해서 정렬해줘.
-
+툴바에 제목(밑줄),  굵은 기울임, 줄바꿈 아이콘 및 기능 삭제해
 ### 27. 2026-06-26
 
-현재 버전을 체크해서 되돌리기 한뒤 이전 기능 (오늘 수정한 버전 이전의 원래 버전으로 rewind) 하고 다시 현재 버전으로 되돌릴 수 있는지 검토해봐
+### 44. 2026-06-27
 
-### 28. 2026-06-26
+현재 단계에서 checklist 가 누락된거 같은데 이 기능 점검해서 추가해
 
-현재 버전 먼저 다른 브랜치에 커밋해.
+### 45. 2026-06-27
+### 46. 2026-06-27
 
-### 29. 2026-06-27
+수정사항은 다음과 같아 
+- 에디터 툴바의 기능중 목록은 Task list(체크리스트) 가 있어야 하는데 누락 되었음 
+- 에디터 내에서 하단에 스크롤이 있고 포커스 클릭이 되어있는데, 툴바 에디터 아이콘을 누르면 스크롤이 맨 위로 올라가는데, 이 포커스된 요소가 상단으로 이동되지 않아야 함 
+- 입력 모달, 버튼, 토스트 메시지 등 내부 컴포넌트는 공통 UI 컴포넌트인 @docs/html/ui-kit.html 의 요소들을 사용해서 통일감 있도록 공통 디자인 시스템을 적용 (툴바나 에디터, 프리뷰 등 핵심 기능 제외) 
+- 좌측 상단 로고 클릭시 root 메인 대시보드 페이지로 이동 
+- 메인 대시보드에는 폴더와 폴더에 속한 목록 형태의 트리 구조로 나와야 함 
+- 툴바의 아이콘들은 34 픽셀의 정사각 모양 
+- 툴바 상단에 문서의 타이틀 노출 영역 확보해서 제목 보여줘야 함
 
-툴바에 제목(밑줄),  굵은 기울임, 줄바꿈 아이콘 및 기능 삭제해
+### 47. 2026-06-27
+
+현재 프로젝트에서 생성한 markdown 문서는 어디에 저장하지?
+
+### 48. 2026-06-27
+
+https://github.com/aidenybai/react-grab  이 데이터를 읽어서 리액트 그랩을 설치 해줘. 리액트 그랩은 dev 모드일때만 활성화 되어서 디버깅이 되어야 해
+
+### 49. 2026-06-27
+
+[<div class="flex items-cent..." /> in Yt (react-resizable-panels) in Ut (react-resizable-panels) in EditorScreen (at /Users/codevillain/Claude-Code-Expert/markdown-editor/src/components/editor/EditorScreen.tsx:25:42) in EditorPage (at /./src/app/editor/%5BdocId%5D/page.tsx:15:26) in next in RootLayout (at src/app/layout.tsx:31:7)]
+제목 영역은 수정이 가능해야해
+
+### 50. 2026-06-27
+
+리액트 그랩을 통해 나오는 아이코닝 세개가 있는데 각각 어떤 기능이지?
+
+### 51. 2026-06-27
+
+제대로 동작 안하는거 같은데
+
+### 52. 2026-06-27
+
+제목 영역은 H1 사이즈 적용
+[<button type="button" title="클릭하여 제목 편집" class="group flex min-..." /> in DocTitle (at /Users/codevillain/Claude-Code-Expert/markdown-editor/src/components/editor/DocTitle.tsx:14:56) in Yt (react-resizable-panels) in Ut (react-resizable-panels) in EditorScreen (at /Users/codevillain/Claude-Code-Expert/markdown-editor/src/components/editor/EditorScreen.tsx:25:42) in EditorPage (at /./src/app/editor/%5BdocId%5D/page.tsx:15:26)]
+
+### 53. 2026-06-27
+
+툴바 우측 영역에는 편집기와 프리뷰를 볼수있는 모드 | 프리뷰만 보는 모드 | 전체 프리젠테이션 모드 세가지 모드를 지원해야 해. 루시트 아이콘으로 기능 구현
+[<div role="toolbar" aria-label="서식 도구 모음" class="flex flex-wrap ..." /> in Toolbar in Yt (react-resizable-panels) in Ut (react-resizable-panels) in EditorScreen (at /Users/codevillain/Claude-Code-Expert/markdown-editor/src/components/editor/EditorScreen.tsx:25:42) in EditorPage (at /./src/app/editor/%5BdocId%5D/page.tsx:15:26) in next in RootLayout (at src/app/layout.tsx:31:7)]
+
+### 54. 2026-06-27
+
+markdown 작성 후 preview 영역에는 code highlight 기능이 추가 되어야 해 라이브러리 검토된게 있는지 살펴보고 적용해
+
+### 55. 2026-06-27
+
+[<li role="treeitem" aria-expanded="true" /> in FolderTree (at /Users/codevillain/Claude-Code-Expert/markdown-editor/src/components/editor/FolderTree.tsx:22:52) in Sidebar (at /Users/codevillain/Claude-Code-Expert/markdown-editor/src/components/editor/Sidebar.tsx:9:62) in Yt (react-resizable-panels) in Ut (react-resizable-panels) in EditorScreen (at /Users/codevillain/Claude-Code-Expert/markdown-editor/src/plugins/helpers.ts:29:27) key: "a345da7e-b546-4acd-9c0f-0995867d1c53"] 
+
+이 트리 구조에서 폴더는 1depth 이고 문서들은 2depth에 있어야 햐는데 현재 화살표 때문에 문서가 폴더보다 앞에 위치하고 있어. 폴더 안쪽에 뎁스가 들어가도록 조정해
+
+### 56. 2026-06-27
+
+모든 마크다운 문서들은 [<button type="button" class="inline-flex ite...">저장</button> in Button (at /Users/codevillain/Claude-Code-Expert/markdown-editor/src/components/ui/Button.tsx:30:5) in StatusBar (at /Users/codevillain/Claude-Code-Expert/markdown-editor/src/components/editor/StatusBar.tsx:13:41) in EditorScreen (at /Users/codevillain/Claude-Code-Expert/markdown-editor/src/plugins/helpers.ts:29:27) in EditorPage (at /./src/app/editor/%5BdocId%5D/page.tsx:15:26)] 저장버튼 클릭시 @resource/md 폴더 하위에 markdown 파일로 저장되어야 해
+
+### 57. 2026-06-27
+
+문서의 제목 사이즈가 h1인데, [<h1>장기 실행 애플리케이션 개발을 위한 하네스 설계</h1> in Preview (at /Users/codevillain/Claude-Code-Expert/markdown-editor/src/components/editor/Preview.tsx:13:41) in Yt (react-resizable-panels) in Ut (react-resizable-panels) in Yt (react-resizable-panels) in Ut (react-resizable-panels) in EditorScreen (at /Users/codevillain/Claude-Code-Expert/markdown-editor/src/components/editor/EditorScreen.tsx:3) in EditorPage in next in RootLayout (at src/app/layout.tsx:31:7)] 이 영역하고 사이즈가 다르므로 문서 내의 h1 스타일 크기를 그대로 제목에도 적용해줘
 

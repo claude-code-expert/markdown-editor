@@ -93,3 +93,76 @@ npm run dev       # 개발 서버
 **analyze 수정 반영**: C1(멱등=meta 플래그, 문서수 아님) · U1(신규설치 빈 문서 1건 시드) · G1(저장 실패 `{ok:false}` 토스트).
 
 **수동 미검증**: T027 `npm run dev`로 폴더 생성·문서 전환·삭제 시각 확인.
+
+---
+
+## M4 — 에디터/프리뷰 보강  ※ requirement.md §12 M4(보강)
+
+**상태**: GREEN — 110/110 통과(기존 104 + 스크롤 6), 빌드·dev 부팅 OK. `@codemirror/lang-markdown` 추가.
+
+| 영역 | 테스트/검증 | 상태 |
+|------|------------|------|
+| 스크롤 비율 순수함수 | `tests/unit/scroll/sync-scroll.test.ts`(Y1–Y5) | ✅ |
+| 경계 리사이즈 | EditorScreen 중첩 Group(에디터\|프리뷰, minSize 25%) | ✅(시각 수동) |
+| 스크롤 동기화 배선 | syncScroll(lock+rAF) + getScroller↔previewRef | ✅(런타임) |
+| 구문 강조 | CM `markdown()` 확장 | ✅(시각 수동) |
+| 회귀 | 기존 104 통과(SC-006) | ✅ |
+
+**신규**: `lib/scroll/syncScroll.ts`(순수+배선), EditorScreen 중첩 Group + 동기화 effect, MarkdownEditor `markdown()`+`getScroller()`, Preview forwardRef, controller `getScroller`.
+
+**수동 미검증**: T010 Z1–Z10(`npm run dev`) — 리사이즈 드래그·스크롤 되튐·구문강조 시각·한글 성능.
+
+---
+
+## M6 — 문서 흐름(대시보드·라우팅·폴더 저장)  ※ requirement.md §12 M6
+
+**상태**: GREEN — 117/117 통과(기존 110 + M6 7), 빌드·dev부팅 OK. 신규 의존성 0(Next App Router).
+
+| 영역 | 테스트/검증 | 상태 |
+|------|------------|------|
+| 중복 제목 | `tests/unit/util/unique-title.test.ts`(U1–U3) | ✅ |
+| 문서 이동·멱등 | `tests/unit/store/workspace-move.test.ts`(moveDocument·중복접미사·loadAll 멱등) | ✅ |
+| M3 회귀 갱신 | `workspace.test.ts` loadAll 비자동선택 반영(3건) | ✅ |
+| 라우팅 | `/`(대시보드 static)·`/editor/[docId]`(dynamic) | ✅(dev 부팅) |
+| 대시보드·폴더선택 | Dashboard·FolderSelect | ✅(시각 수동) |
+
+**신규**: `app/page.tsx`(Dashboard)·`app/editor/[docId]/page.tsx`·`components/dashboard/Dashboard.tsx`·
+`FolderSelect.tsx`·`lib/util/uniqueTitle.ts`·`storage/documents.setFolder`. **수정**: workspace(loadAll 멱등·moveDocument·uniqueTitle 통합), EditorScreen(loadAll 제거→라우트 주도 + 헤더 FolderSelect·대시보드 링크), FolderTree(클릭→router.push). 테스트 next/navigation 모킹 추가.
+
+**analyze 수정 반영**: O1(uniqueTitle을 US3/생성·이동 경로에 통합, P3 미루지 않음)·A1(자동접미사 확정)·U1(토스트=M3 StatusBar 재사용).
+
+**수동 미검증**: W1~W13(`npm run dev`) — 대시보드 클릭·새로고침 유지·폴더선택 저장·중복명 시각.
+
+---
+
+## M7 — 마감(성능·접근성·안전종료·배포 검증)  ※ requirement.md §12 M7
+
+**상태**: GREEN — 142/142 통과(기존 117 + M7 25), 빌드 무설정 성공, 서버 의존 0. 신규 런타임 의존성 0.
+
+**감사 grounding(2026-06-27)**: 인프라 대부분 기존(디바운스 120ms·sanitize 테스트·beforeunload·
+키보드 리사이즈 rrp v4 기본·한글 aria). 실제 결함 4건만 수정.
+
+| 영역 | 테스트/검증 | 상태 |
+|------|------------|------|
+| 색 대비(FR-007) | `tests/unit/a11y/contrast.test.ts`(globals.css 실값 파싱, AA 4.5:1) | ✅ RED→GREEN |
+| 렌더 예산·디바운스(FR-001·002) | `tests/unit/perf/render-budget.test.ts`·`components/preview-debounce.test.tsx` | ✅ |
+| 미저장 이탈 가드(FR-008) | `tests/unit/util/dirty-guard.test.ts`(mayDiscard 순수) | ✅ |
+| sanitize 확장(FR-009) | `sanitize.test.ts` +6 페이로드(iframe·svg onload·data:·style·object·onclick) | ✅ 회귀 고정 |
+| 토스트 구분(FR-010) | StatusBar kind별 의미색 좌측 보더 | ✅(시각 수동) |
+| 무설정 빌드(FR-012) | `npm run build` 성공·서버 의존 0 | ✅ |
+
+**수정 결함 4건**: ① `--danger` 토큰 신규 정의(`#c92a2a`, FolderSelect 깨짐 정상화) ② `--fg-faint`
+`#98a1b2`→`#6b7280`(2.6:1→≈4.8:1 AA) ③ 저장 토스트 성공=`--ok`/실패=`--danger` 좌측 보더 + role=status
+④ 대시보드 `<Link>` dirty 가드(클라 네비 beforeunload 미발화 보완, `mayDiscard` 헬퍼).
+
+**신규**: `lib/a11y/contrast.ts`(순수 WCAG)·`lib/util/dirtyGuard.ts`(순수). **수정**: `globals.css`(토큰 2),
+`StatusBar.tsx`(토스트 kind), `EditorScreen.tsx`(대시보드 가드).
+
+**analyze 반영(MEDIUM)**: A1(렌더예산 하드 50ms→관대한 상한+스케일링 가드, CI flake 회피)·
+U1(키보드 증분 측정·문서화: 화살표 ±5%p·Home/End 한계, contracts/accessibility.md A3)·N2(라인 145→143 정정).
+
+**헌법 게이트**: I(플러그인 무수정)·II(sanitize 강화·회귀만)·III(SDD)·IV(TDD RED→GREEN)·
+V(토스트 무채색 배경+의미색 1px 보더, 컬러그림자·글로우·그라데이션 0) 전부 통과.
+
+**수동 미검증**: quickstart M1~M8 13항목(`npm run dev`) — 체감·IME·키보드·리사이즈·dirty 3경로·
+토스트 구분·영속·XSS 시각.

@@ -10,6 +10,7 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useWorkspaceStore } from "@/lib/store/useWorkspaceStore";
 import { useEditorStore } from "@/lib/store/useEditorStore";
 
@@ -28,17 +29,24 @@ export function FolderTree() {
   const deleteFolder = useWorkspaceStore((s) => s.deleteFolder);
   const renameDocument = useWorkspaceStore((s) => s.renameDocument);
   const deleteDocument = useWorkspaceStore((s) => s.deleteDocument);
-  const selectDocument = useWorkspaceStore((s) => s.selectDocument);
+  const router = useRouter();
 
-  // dirty 보호(W3·FR-007): 미저장 변경 시 전환 확인
-  async function openDoc(id: string) {
+  // 문서 클릭 → URL 네비게이션(M6 R6). dirty 보호(FR-010): 미저장 변경 시 확인.
+  function openDoc(id: string) {
     if (id === activeDocId) return;
     if (
       useEditorStore.getState().dirty &&
       !window.confirm("저장하지 않은 변경이 있습니다. 버리고 이동할까요?")
     )
       return;
-    await selectDocument(id);
+    router.push(`/editor/${id}`);
+  }
+
+  // 새 문서 생성 후 그 문서로 네비게이션(URL 일치)
+  async function newDoc(folderId: string) {
+    await createDocument(folderId);
+    const id = useWorkspaceStore.getState().activeDocId;
+    if (id) router.push(`/editor/${id}`);
   }
 
   if (folders.length === 0) {
@@ -73,7 +81,7 @@ export function FolderTree() {
               <span className="flex-1 truncate text-sm" style={{ color: "var(--fg)" }}>
                 {f.name}
               </span>
-              <button type="button" aria-label="새 문서" title="새 문서" onClick={() => createDocument(f.id)} className={iconBtn}>
+              <button type="button" aria-label="새 문서" title="새 문서" onClick={() => newDoc(f.id)} className={iconBtn}>
                 <FilePlus size={13} />
               </button>
               <button
@@ -101,7 +109,11 @@ export function FolderTree() {
             </div>
 
             {open && (
-              <ul role="group" className="ml-5 space-y-0.5">
+              <ul
+                role="group"
+                className="ml-7 space-y-0.5 border-l pl-2"
+                style={{ borderColor: "var(--border)" }}
+              >
                 {docs.length === 0 && (
                   <li className="px-2 py-1 text-xs" style={{ color: "var(--fg-faint)" }}>
                     (문서 없음)

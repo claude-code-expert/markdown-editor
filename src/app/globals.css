@@ -15,11 +15,14 @@
   --border-strong: #dfe4ec;
   --fg: #1c2434;
   --fg-muted: #4a5568;
-  --fg-faint: #98a1b2;
+  /* M7(FR-007): #98a1b2(2.6:1)는 WCAG AA 미달 → #6b7280(≈4.8:1)로 상향. 상태·카운트·라벨 텍스트용. */
+  --fg-faint: #6b7280;
   --accent: #3b5bdb;
   --accent-fg: #ffffff;
   --accent-hover: #2f4ec4;
   --ok: #2bb673;
+  /* M7(FR-010): 저장 실패·경고 의미색. 텍스트로도 AA(≈5.3:1 on 흰). FolderSelect·실패 토스트. */
+  --danger: #c92a2a;
   --toolbar-hover: #f1f3f9;
   --font-sans: "Pretendard Variable", "Pretendard", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
@@ -165,6 +168,65 @@ body {
   font-size: 13.5px;
   font-weight: 400;
 }
+
+/*
+  코드 구문 하이라이트 — rehype-highlight(highlight.js) hljs-* 토큰.
+  다크 pre(#1a2030)용 차분한 팔레트. 색은 장식이 아니라 토큰 종류(의미)를 전달하므로
+  anti-slop 허용 범위(색은 의미에만). 네온·글로우·그라데이션 없음.
+*/
+.md-preview .hljs-comment,
+.md-preview .hljs-quote {
+  color: #6b7689;
+  font-style: italic;
+}
+.md-preview .hljs-keyword,
+.md-preview .hljs-selector-tag,
+.md-preview .hljs-literal,
+.md-preview .hljs-section,
+.md-preview .hljs-doctag,
+.md-preview .hljs-name {
+  color: #7aa2f7;
+}
+.md-preview .hljs-string,
+.md-preview .hljs-regexp,
+.md-preview .hljs-addition {
+  color: #9ece6a;
+}
+.md-preview .hljs-number,
+.md-preview .hljs-bullet,
+.md-preview .hljs-meta {
+  color: #ff9e64;
+}
+.md-preview .hljs-title,
+.md-preview .hljs-title.function_,
+.md-preview .hljs-built_in {
+  color: #82aaff;
+}
+.md-preview .hljs-attr,
+.md-preview .hljs-attribute,
+.md-preview .hljs-property,
+.md-preview .hljs-symbol {
+  color: #7dcfff;
+}
+.md-preview .hljs-type,
+.md-preview .hljs-class .hljs-title,
+.md-preview .hljs-params {
+  color: #e0af68;
+}
+.md-preview .hljs-variable,
+.md-preview .hljs-template-variable,
+.md-preview .hljs-tag,
+.md-preview .hljs-deletion,
+.md-preview .hljs-selector-id,
+.md-preview .hljs-selector-class {
+  color: #f7768e;
+}
+.md-preview .hljs-emphasis {
+  font-style: italic;
+}
+.md-preview .hljs-strong {
+  font-weight: 700;
+}
 /* 표 — 디자인의 box-shadow 링 대신 무채색 1px 보더(anti-slop) */
 .md-preview table {
   border-collapse: collapse;
@@ -202,8 +264,9 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
   border: 1px solid var(--border-strong);
   border-radius: 7px;
   background: var(--bg);

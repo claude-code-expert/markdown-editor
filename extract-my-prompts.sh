@@ -225,7 +225,13 @@ if mode == "append":
         # 손편집(삭제·재번호)해도 새 항목이 끝번호에서 이어지며, 과거 누락분도 자동 복구된다.
         existing = existing_body_texts(out)
         last_i = max_existing_index(out)
-        batch = [(ts, t) for (ts, t) in uniq if t.strip() not in existing]
+        # 워터마크 게이트: last_ts 이전 프롬프트는 후보에서 제외한다.
+        # 본문 대조만 쓰면 손삭제한 과거 항목이 jsonl 원본에 남아 '누락분'으로
+        # 오인돼 끝에 재추가된다(부활). last_ts 로 한번 지나간 구간을 잠가
+        # 손삭제를 존중하고, 신규(ts > last_ts)만 본문 대조로 누락 보정한다.
+        last_ts = (load_state(state_path) or {}).get("last_ts", "")
+        batch = [(ts, t) for (ts, t) in uniq
+                 if t.strip() not in existing and ts > last_ts]
         if batch:
             buf = "".join(entry_text(last_i + n, ts, t)
                           for n, (ts, t) in enumerate(batch, 1))

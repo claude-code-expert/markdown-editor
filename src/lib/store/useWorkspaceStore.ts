@@ -3,6 +3,7 @@ import type { Folder, DocumentMeta } from "@/lib/storage/db";
 import * as foldersRepo from "@/lib/storage/folders";
 import * as docsRepo from "@/lib/storage/documents";
 import { migrate } from "@/lib/storage/migrate";
+import { uniqueTitle } from "@/lib/util/uniqueTitle";
 import { useEditorStore } from "./useEditorStore";
 
 interface WorkspaceStore {
@@ -19,9 +20,21 @@ interface WorkspaceStore {
   renameDocument: (id: string, title: string) => Promise<void>;
   deleteFolder: (id: string) => Promise<void>;
   deleteDocument: (id: string) => Promise<void>;
+  moveDocument: (id: string, folderId: string) => Promise<void>;
   selectDocument: (id: string) => Promise<void>;
   saveActive: () => Promise<{ ok: boolean; error?: string }>;
   toggleExpand: (folderId: string) => void;
+}
+
+/** 동일 폴더 내 기존 문서 제목 목록(자기 자신 제외) */
+function titlesInFolder(
+  documents: DocumentMeta[],
+  folderId: string,
+  excludeId?: string,
+): string[] {
+  return documents
+    .filter((d) => d.folderId === folderId && d.id !== excludeId)
+    .map((d) => d.title);
 }
 
 async function refresh(set: (p: Partial<WorkspaceStore>) => void) {
@@ -40,13 +53,11 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
   loaded: false,
 
   loadAll: async () => {
-    await migrate(); // C1: 멱등(플래그 기반), U1: 빈 문서 1건 시드 보장
+    if (get().loaded) return; // R2: 멱등 — 두 페이지(대시보드·에디터) 안전 호출
+    await migrate(); // 멱등(플래그 기반) + 빈 문서 1건 시드 보장
     await refresh(set);
     set({ loaded: true });
-    const { documents, activeDocId } = get();
-    if (!activeDocId && documents.length > 0) {
-      await get().selectDocument(documents[0].id);
-    }
+    // M6: 활성 문서 선택은 URL(라우트)이 단일 출처 — 첫 문서 자동선택 제거
   },
 
   createFolder: async (name) => {
@@ -56,7 +67,9 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
   },
 
   createDocument: async (folderId) => {
-    const d = await docsRepo.createDocument(folderId);
+    // FR-009: 동일 폴더 중복 제목 → 접미사
+    const title = uniqueTitle(titlesInFolder(get().documents, folderId), "제목 없음");
+    const d = await docsRepo.createDocument(folderId, title);
     await refresh(set);
     set((s) => ({ expanded: new Set(s.expanded).add(folderId) }));
     await get().selectDocument(d.id);
@@ -68,7 +81,20 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
   },
 
   renameDocument: async (id, title) => {
-    await docsRepo.renameDocument(id, title);
+    const doc = get().documents.find((d) => d.id === id);
+    const folderId = doc?.folderId ?? "";
+    // FR-009: 같은 폴더 중복 제목 → 접미사(자기 자신 제외)
+    const finalTitle = uniqueTitle(titlesInFolder(get().documents, folderId, id), title);
+    await docsRepo.renameDocument(id, finalTitle);
+    await refresh(set);
+  },
+
+  // M6: 활성/대상 문서의 소속 폴더 변경(저장 대상 지정). 중복 제목이면 접미사 재부여.
+  moveDocument: async (id, folderId) => {
+    const doc = get().documents.find((d) => d.id === id);
+    if (!doc || doc.folderId === folderId) return;
+    const finalTitle = uniqueTitle(titlesInFolder(get().documents, folderId, id), doc.title);
+    await docsRepo.setFolder(id, folderId, finalTitle);
     await refresh(set);
   },
 

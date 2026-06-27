@@ -10,7 +10,7 @@ import { renderMarkdown } from "@/lib/markdown/pipeline";
  */
 
 // 명세 §0 코어+GFM 전 태그 (툴바 커버리지 기준)
-// 2026-06-27 변경: 제목 H1–H3 / 링크 단일화 / 작업목록·Setext·굵은기울임·자동링크·줄바꿈 제외
+// 2026-06-27 변경: 제목 H1–H3 / 링크 단일화 / Setext·굵은기울임·자동링크·줄바꿈 제외, 작업목록 재추가
 const REQUIRED_IDS = [
   "heading-1", "heading-2", "heading-3",
   "bold", "italic", "strikethrough", "inline-code",

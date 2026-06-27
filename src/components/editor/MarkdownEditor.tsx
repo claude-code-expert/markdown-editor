@@ -5,6 +5,7 @@ import { EditorView, keymap } from "@codemirror/view";
 import { EditorState as CMState } from "@codemirror/state";
 import { basicSetup } from "codemirror";
 import { defaultKeymap } from "@codemirror/commands";
+import { markdown } from "@codemirror/lang-markdown";
 import { useEditorStore } from "@/lib/store/useEditorStore";
 import { PLUGINS, computeActiveIds } from "@/plugins";
 import type { MarkdownPlugin } from "@/plugins";
@@ -23,6 +24,25 @@ export const MarkdownEditor = forwardRef<EditorController>(function MarkdownEdit
 ) {
   const hostRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
+
+  /**
+   * 두 문서의 공통 접두/접미를 제외한 최소 변경 영역. 전체 교체 대신 이 범위만 dispatch하면
+   * 뷰포트 위 영역이 그대로 유지돼 스크롤이 보존된다(툴바 적용 시 맨 위로 점프 방지).
+   */
+  function minimalChange(oldDoc: string, newDoc: string) {
+    const oLen = oldDoc.length;
+    const nLen = newDoc.length;
+    const max = Math.min(oLen, nLen);
+    let p = 0;
+    while (p < max && oldDoc.charCodeAt(p) === newDoc.charCodeAt(p)) p++;
+    let s = 0;
+    while (
+      s < max - p &&
+      oldDoc.charCodeAt(oLen - 1 - s) === newDoc.charCodeAt(nLen - 1 - s)
+    )
+      s++;
+    return { from: p, to: oLen - s, insert: newDoc.slice(p, nLen - s) };
+  }
   const doc = useEditorStore((s) => s.doc);
   const setDoc = useEditorStore((s) => s.setDoc);
   const setActiveIds = useEditorStore((s) => s.setActiveIds);
@@ -33,7 +53,7 @@ export const MarkdownEditor = forwardRef<EditorController>(function MarkdownEdit
     const view = viewRef.current;
     if (!view) return;
     view.dispatch({
-      changes: { from: 0, to: view.state.doc.length, insert: change.doc },
+      changes: minimalChange(view.state.doc.toString(), change.doc),
       selection: { anchor: change.selectionStart, head: change.selectionEnd },
     });
     setDoc(change.doc);
@@ -60,7 +80,7 @@ export const MarkdownEditor = forwardRef<EditorController>(function MarkdownEdit
       inputs,
     );
     view.dispatch({
-      changes: { from: 0, to: view.state.doc.length, insert: change.doc },
+      changes: minimalChange(view.state.doc.toString(), change.doc),
       selection: { anchor: change.selectionStart, head: change.selectionEnd },
     });
     setDoc(change.doc);
@@ -86,6 +106,7 @@ export const MarkdownEditor = forwardRef<EditorController>(function MarkdownEdit
         doc,
         extensions: [
           basicSetup,
+          markdown(), // 에디터 마크다운 구문 강조 (US3, H1) — 표시 전용, 파이프라인 무관(H3)
           EditorView.lineWrapping,
           shortcutKeymap,
           keymap.of(defaultKeymap),
@@ -133,7 +154,7 @@ export const MarkdownEditor = forwardRef<EditorController>(function MarkdownEdit
     if (!view) return;
     const current = view.state.doc.toString();
     if (current !== doc) {
-      view.dispatch({ changes: { from: 0, to: current.length, insert: doc } });
+      view.dispatch({ changes: minimalChange(current, doc) });
     }
   }, [doc]);
 
@@ -150,6 +171,7 @@ export const MarkdownEditor = forwardRef<EditorController>(function MarkdownEdit
         selectionEnd: sel.to,
       });
     },
+    getScroller: () => viewRef.current?.scrollDOM ?? null,
     focus: () => viewRef.current?.focus(),
   }));
 

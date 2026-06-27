@@ -3,6 +3,7 @@ import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
+import rehypeHighlight from "rehype-highlight";
 import rehypeStringify from "rehype-stringify";
 
 /**
@@ -31,11 +32,22 @@ const schema = {
   },
 };
 
+/**
+ * 파이프라인 순서 = 보안 결정(헌법 원칙 II).
+ * sanitize를 highlight보다 먼저 둔다: 사용자 HTML을 먼저 정제한 뒤,
+ * 신뢰된 하이라이터(lowlight/highlight.js)가 hljs-* span을 주입한다.
+ * highlight 산출은 신뢰 출력이라 재정제 불필요하고, sanitize 스키마에
+ * 토큰 클래스를 일일이 허용할 필요도 없다(code[className]만으로 language-* 전달).
+ * highlight는 동기 변환이므로 renderMarkdown의 processSync를 유지한다(Shiki=async라 부적합).
+ * 미등록 언어(```foobar)는 v7 기본 동작상 throw 없이 무하이라이트로 통과(경고만) → 프리뷰 안전.
+ * 기본 detect:false → 언어 미지정 블록은 자동추정하지 않고 그대로 둔다(오추정 방지).
+ */
 const processor = unified()
   .use(remarkParse)
   .use(remarkGfm)
   .use(remarkRehype)
   .use(rehypeSanitize, schema)
+  .use(rehypeHighlight)
   .use(rehypeStringify);
 
 /** 마크다운 → 정제된 안전 HTML 문자열. 모든 단계가 동기이므로 processSync 사용. */

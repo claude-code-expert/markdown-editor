@@ -27,6 +27,9 @@ describe("워크스페이스 협응 (W1–W6)", () => {
     await ws().loadAll();
     expect(ws().folders).toHaveLength(1);
     expect(ws().documents).toHaveLength(1);
+    // M6: loadAll은 활성 문서를 자동선택하지 않는다(URL이 단일 출처). 선택 시 활성화.
+    expect(ws().activeDocId).toBeNull();
+    await ws().selectDocument(ws().documents[0].id);
     expect(ws().activeDocId).toBe(ws().documents[0].id);
   });
 
@@ -42,6 +45,7 @@ describe("워크스페이스 협응 (W1–W6)", () => {
 
   it("W2 saveActive → 활성 문서에 기록, dirty 해제", async () => {
     await ws().loadAll();
+    await ws().selectDocument(ws().documents[0].id); // M6: 활성 문서 선택
     ed().setDoc("# 저장할 내용");
     expect(ed().dirty).toBe(true);
     const res = await ws().saveActive();
@@ -51,6 +55,7 @@ describe("워크스페이스 협응 (W1–W6)", () => {
 
   it("W4 A→B→A 전환 시 내용 무혼합 (SC-005)", async () => {
     await ws().loadAll();
+    await ws().selectDocument(ws().documents[0].id); // M6: 활성 문서 선택
     const folderId = ws().folders[0].id;
     const docA = ws().activeDocId!;
     ed().setDoc("내용 A");

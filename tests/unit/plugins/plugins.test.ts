@@ -29,8 +29,22 @@ describe("플러그인 apply/isActive (C1·C5·C6)", () => {
 });
 
 describe("레지스트리 무결성 (C6)", () => {
-  it("플러그인 15종 등록 (제목H1–3 + 강조4 + 링크2 + 목록3 + 블록3)", () => {
-    expect(PLUGINS).toHaveLength(15);
+  it("플러그인 16종 등록 (제목H1–3 + 강조4 + 링크2 + 목록4 + 블록3)", () => {
+    expect(PLUGINS).toHaveLength(16);
+  });
+
+  it("작업목록(체크리스트) 등록 + 토글 + 체크/미체크 활성", () => {
+    const taskList = PLUGINS.find((p) => p.id === "task-list");
+    expect(taskList).toBeTruthy();
+    expect(
+      taskList!.apply({ doc: "할 일", selectionStart: 0, selectionEnd: 0 }).doc,
+    ).toBe("- [ ] 할 일");
+    expect(
+      taskList!.isActive?.({ doc: "- [ ] a", selectionStart: 6, selectionEnd: 6 }),
+    ).toBe(true);
+    expect(
+      taskList!.isActive?.({ doc: "- [x] a", selectionStart: 6, selectionEnd: 6 }),
+    ).toBe(true);
   });
 
   it("모든 플러그인이 한글 label·icon·apply를 가진다", () => {

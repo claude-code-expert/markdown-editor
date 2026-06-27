@@ -8,7 +8,7 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     include: ["tests/**/*.test.{ts,tsx}"],
-    setupFiles: ["tests/setup/indexeddb.ts"],
+    setupFiles: ["tests/setup/indexeddb.ts", "tests/setup/next-navigation.ts"],
   },
   resolve: {
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
